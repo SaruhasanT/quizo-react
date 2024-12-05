@@ -1,0 +1,38 @@
+/* .mcq__building {
+  background-color: #f3f3f3;
+} */
+.mcq__build {
+  display: flex;
+  height: calc(100vh - 70px);
+  width: 100vw;
+  align-items: center;
+}
+.mcq__building {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mcq__container {
+  overflow: auto;
+  flex: 1;
+  max-height: calc(100vh - 200px);
+}
+.answers > div {
+  margin-block: 5px;
+  position: relative;
+}
+.answers > div span {
+  margin-left: 10px;
+  position: absolute;
+  top: 62%;
+  transform: translateY(-50%);
+}
+.mcq__build h2 {
+  font-weight: 400;
+  text-transform: uppercase;
+  padding-bottom: 20px;
+}
+.mcq__container > div {
+  padding: 20px 20px;
+}

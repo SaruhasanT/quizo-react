@@ -1,0 +1,57 @@
+.login-window {
+  width: 350px;
+  position: fixed;
+  font-family: "Road Rage", sans-serif;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 101;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-inline: 2rem;
+  border-radius: 20px;
+  gap: 10px;
+  padding-block: 30px;
+  max-height: auto;
+  transition: max-height 100ms ease-in-out;
+}
+.login-window.open {
+  max-height: 1000px;
+}
+.login-window h1 {
+  font-weight: medium;
+}
+.login-window input {
+  width: 100%;
+  padding: 10px 20px;
+  border: none;
+  font-size: 1.05rem;
+  border-radius: 4px;
+  outline: none;
+  box-shadow: 1px 1px 2px 1px #ccc;
+}
+.login-window input::placeholder {
+  font-family: "Roboto", serif;
+}
+.switch {
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.auth-icons {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 60%;
+}
+.auth-icons div {
+  cursor: pointer;
+}
+.error-msg {
+  font-size: 0.7rem;
+  height: 0.7rem;
+  width: 100%;
+  color: red;
+  margin-top: -5px;
+}

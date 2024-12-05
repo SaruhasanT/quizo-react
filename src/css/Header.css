@@ -1,0 +1,11 @@
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 100px;
+  height: 70px;
+}
+.navigate-btns {
+  display: flex;
+  gap: 20px;
+}
