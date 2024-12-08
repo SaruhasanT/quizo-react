@@ -58,3 +58,17 @@
 .correct__answer__popup button {
   border: none;
 }
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.acc-icon {
+  width: 20px;
+  height: 20px;
+}
+.icon-wrapper {
+  width: 20px;
+  height: 20px;
+  background-color: #ccc;
+}

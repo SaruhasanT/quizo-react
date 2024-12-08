@@ -6,7 +6,16 @@ import facebook from "../assets/images/facebook-svgrepo-com (1).svg";
 import apple from "../assets/images/apple-logo-svgrepo-com.svg";
 import { motion } from "framer-motion";
 import { validateEmail, validatePassword } from "../utils/validateData";
+import { auth } from "../utils/firebase";
+import { useDispatch, useSelector } from "react-redux";
+import { log } from "../store/userSlice";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 const Login = ({ isLogin, setIsLogin, setIsLoggedIn }) => {
+  const newUser = useSelector((store) => store.users.user);
+  const dispatch = useDispatch();
   const [emailError, setEmailError] = useState(null);
   const [passwordError, setPasswordError] = useState(null);
   const [repeatPasswordError, setRepeatPasswordError] = useState(null);
@@ -17,6 +26,9 @@ const Login = ({ isLogin, setIsLogin, setIsLoggedIn }) => {
     return (
       emailError == null && passwordError == null && repeatPasswordError == null
     );
+  };
+  const isLogingCreadentialValid = () => {
+    return emailError == null && passwordError == null;
   };
   const checkEmail = () => {
     const err = validateEmail(email.current.value);
@@ -30,6 +42,41 @@ const Login = ({ isLogin, setIsLogin, setIsLoggedIn }) => {
     setEmailError(null);
     setPasswordError(null);
     setRepeatPasswordError(null);
+  }
+  function createNewUser() {
+    createUserWithEmailAndPassword(
+      auth,
+      email.current.value,
+      password.current.value
+    )
+      .then((userCredential) => {
+        const user = userCredential.user;
+        dispatch(log(user));
+        console.log(newUser);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+      });
+  }
+  function logUser() {
+    signInWithEmailAndPassword(
+      auth,
+      email.current.value,
+      password.current.value
+    )
+      .then((userCredential) => {
+        const user = userCredential.user;
+        dispatch(log(user));
+        setIsLogin(null);
+        setIsLoggedIn(true);
+        console.log(newUser);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        setPasswordError(errorMessage);
+      });
   }
   return (
     <form
@@ -71,12 +118,11 @@ const Login = ({ isLogin, setIsLogin, setIsLoggedIn }) => {
               checkPassword();
 
               if (
-                isCreadentialsValid() &&
+                isLogingCreadentialValid() &&
                 email.current.value !== "" &&
                 password.current.value !== ""
               ) {
-                setIsLogin(null);
-                setIsLoggedIn(true);
+                logUser();
               }
               localStorage.setItem("isLoggedIn", true);
             }}
@@ -114,6 +160,7 @@ const Login = ({ isLogin, setIsLogin, setIsLoggedIn }) => {
               ) {
                 setIsLogin(null);
                 setIsLoggedIn(true);
+                createNewUser();
               }
               console.log(emailError, passwordError, repeatPasswordError);
             }}

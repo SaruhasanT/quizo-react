@@ -5,6 +5,9 @@ import Checkbox from "@mui/material/Checkbox";
 import Question from "./Question";
 import "../css/McqBuild.css";
 import { ThemeProvider, createTheme } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import { clearItems } from "../store/questionSlice";
+import { addItem } from "../store/questionSlice";
 
 const theme = createTheme({
   palette: {
@@ -14,7 +17,10 @@ const theme = createTheme({
   },
 });
 const McqBuild = () => {
-  const [list, setList] = useState([]);
+  const dispatch = useDispatch();
+  const questionList = useSelector((store) => {
+    return store.questions.items;
+  });
   const [questionValue, setQuestionValue] = useState(null);
   const [ans1, setAns1] = useState(null);
   let question = useRef(null);
@@ -22,7 +28,7 @@ const McqBuild = () => {
   const [ans3, setAns3] = useState(null);
   const [ans4, setAns4] = useState(null);
   const [ans5, setAns5] = useState(null);
-  const [isChecked, setIsChecked] = useState(false);
+  const [isChecked, setIsChecked] = useState(0);
   const [checkedIndex, setCheckedIndex] = useState(0);
   let questionNumber = 0;
   const setValue = (e, setItem) => {
@@ -68,7 +74,10 @@ const McqBuild = () => {
           <h2>Create your question here.</h2>
           <div className="question__wrapper">
             <span>
-              <span className="question__number">{list.length + 1}</span>.
+              <span className="question__number">
+                {questionList.length + 1}
+              </span>
+              .
             </span>
             <TextField
               id="standard-basic"
@@ -181,20 +190,24 @@ const McqBuild = () => {
               color="primary"
               size="small"
               onClick={() => {
-                setList([
-                  ...list,
-                  {
-                    id: uuidv4(),
+                const newId = uuidv4();
+                dispatch(
+                  addItem({
+                    id: newId,
                     question: questionValue,
-                    answers: [ans1, ans2, ans3, ans4, ans5].filter(
-                      (item) => item !== null
-                    ),
+                    answers: [
+                      { answerNumber: 1, answer: ans1 },
+                      { answerNumber: 2, answer: ans2 },
+                      { answerNumber: 3, answer: ans3 },
+                      { answerNumber: 4, answer: ans4 },
+                      { answerNumber: 5, answer: ans5 },
+                    ].filter((item) => item.answer !== null),
                     correctAnswer: checkedIndex + 1,
-                  },
-                ]);
+                  })
+                );
+
                 question.current.children[1].children[0].value = "";
                 setQuestionValue("");
-                console.log(list);
               }}
               variant="outlined"
             >
@@ -203,22 +216,30 @@ const McqBuild = () => {
           </ThemeProvider>
         </form>
         <ThemeProvider theme={theme}>
-          <Button variant="outlined" size="small" color="primary">
+          <Button
+            onClick={() => {
+              console.log(questionList);
+            }}
+            variant="outlined"
+            size="small"
+            color="primary"
+          >
             Submit
           </Button>
         </ThemeProvider>
+        <button
+          onClick={() => {
+            dispatch(clearItems());
+          }}
+        >
+          CLEAR
+        </button>
       </div>
       <div className="mcq__container">
-        {list.map((li) => {
+        {questionList.map((li, index) => {
           ++questionNumber;
           return (
-            <Question
-              key={li.id}
-              li={li}
-              setList={setList}
-              list={list}
-              questionNumber={questionNumber}
-            />
+            <Question key={li.id} li={li} questionNumber={questionNumber} />
           );
         })}
       </div>

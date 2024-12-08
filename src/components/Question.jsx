@@ -2,17 +2,28 @@ import React, { useState } from "react";
 import Button from "@mui/material/Button";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import DoneIcon from "@mui/icons-material/Done";
-import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import "../css/Question.css";
 import { TextField, ThemeProvider, createTheme } from "@mui/material";
-import { div } from "framer-motion/client";
-import { CheckBox } from "@mui/icons-material";
-import userSlice from "../store/userSlice";
-const Question = ({ li, setList, list, questionNumber }) => {
+import { useDispatch } from "react-redux";
+import {
+  removeItem,
+  updateAnswers,
+  updateQuestion,
+  clearItems,
+} from "../store/questionSlice";
+import { useSelector } from "react-redux";
+
+const Question = ({ li, questionNumber }) => {
+  const questionList = useSelector((store) => {
+    return store.questions.items;
+  });
+  const dispatch = useDispatch();
   const [isInputOpen, setIsInputOpen] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
   const [editText, setEditText] = useState("");
-  const [editWriteAnswer, setEditWriteAnswer] = useState(null);
+  const [qEditText, setQEditText] = useState("");
+  const [editRightAnswer, setEditRightAnswer] = useState(null);
+  const [showItem, setShowItem] = useState(true);
   const theme = createTheme({
     palette: {
       primary: {
@@ -22,101 +33,147 @@ const Question = ({ li, setList, list, questionNumber }) => {
   });
 
   return (
-    <>
-      <div className="ques__wrapper">
-        <div>
+    <div className="ques__wrapper">
+      <div className="question-header">
+        <div
+          onDoubleClick={() => {
+            setIsInputOpen(true);
+            setQEditText(li.question);
+          }}
+        >
           <span>{questionNumber}.</span>
-          {li.question}
+          {!isInputOpen ? (
+            li.question
+          ) : (
+            <>
+              <input
+                className="edit__field"
+                value={qEditText}
+                onChange={(e) => {
+                  setQEditText(e.target.value);
+                }}
+              />
+
+              <ThemeProvider theme={theme}>
+                <Button
+                  onClick={() => {
+                    dispatch(
+                      updateQuestion({
+                        id: questionList[questionNumber - 1].id,
+                        question: qEditText,
+                      })
+                    );
+                    setQEditText("");
+                    setIsInputOpen(false);
+                  }}
+                  size="small"
+                  variant="outlined"
+                  color="primary"
+                >
+                  SAVE
+                </Button>
+              </ThemeProvider>
+            </>
+          )}
         </div>
+        <div
+          className="icon-wrapper"
+          onClick={() => {
+            setShowItem(!showItem);
+          }}
+          style={{
+            cursor: "pointer",
+          }}
+        >
+          {!showItem ? (
+            <img
+              src="https://www.svgrepo.com/show/532997/plus-large.svg"
+              className="plus-icon acc-icon"
+            />
+          ) : (
+            <img
+              src="https://www.svgrepo.com/show/532178/horizontal-rule.svg"
+              className="minus-icon acc-icon"
+            />
+          )}
+        </div>
+      </div>
+      {showItem && (
         <div className="answers">
           {li.answers.map((ans, index) => {
             return (
-              <>
-                <div
-                  key={index + 1}
-                  onDoubleClick={() => {
-                    setEditIndex(index + 1);
-                    setEditText(ans);
-                  }}
-                  className={
-                    li.correctAnswer === index + 1 ? "ans correct" : "ans"
-                  }
-                >
-                  {index + 1}.{"  "}
-                  {editIndex !== index + 1 ? (
-                    li.correctAnswer !== index + 1 ? (
-                      ans
-                    ) : (
-                      <>
-                        {ans} <DoneIcon />
-                      </>
-                    )
+              <div
+                key={index + 1}
+                onDoubleClick={() => {
+                  setEditIndex(index + 1);
+                  setEditText(ans.answer);
+                }}
+                className={
+                  li.correctAnswer === index + 1 ? "ans correct" : "ans"
+                }
+              >
+                {index + 1}.{"  "}
+                {editIndex !== index + 1 ? (
+                  li.correctAnswer !== index + 1 ? (
+                    ans.answer
                   ) : (
                     <>
-                      <input
-                        className="edit__field"
-                        value={editText}
-                        onChange={(e) => {
-                          setEditText(e.target.value);
-                        }}
-                      />
-
-                      <ThemeProvider theme={theme}>
-                        <Button
-                          onClick={() => {
-                            setEditIndex(null);
-                            li.answers.forEach((a, i) => {
-                              if (i + 1 == editIndex) {
-                                setList(
-                                  list.map((l, j) => {
-                                    if (j + 1 === questionNumber) {
-                                      return {
-                                        ...l,
-                                        answers: [
-                                          ...l.answers.slice(0, i),
-                                          editText,
-                                          ...l.answers.slice(i + 1),
-                                        ],
-                                      };
-                                    } else {
-                                      return l;
-                                    }
-                                  })
-                                );
-                              }
-                            });
-                            setEditText("");
-                          }}
-                          size="small"
-                          variant="outlined"
-                          color="primary"
-                        >
-                          SAVE
-                        </Button>
-                      </ThemeProvider>
+                      {ans.answer} <DoneIcon />
                     </>
-                  )}
-                </div>
-              </>
+                  )
+                ) : (
+                  <>
+                    <input
+                      className="edit__field"
+                      value={editText}
+                      onChange={(e) => {
+                        setEditText(e.target.value);
+                      }}
+                    />
+
+                    <ThemeProvider theme={theme}>
+                      <Button
+                        onClick={() => {
+                          setEditIndex(null);
+                          dispatch(
+                            updateAnswers({
+                              id: questionList[questionNumber - 1].id,
+                              answerNumber: editIndex,
+                              newAnswer: editText,
+                            })
+                          );
+                          setEditText("");
+                        }}
+                        size="small"
+                        variant="outlined"
+                        color="primary"
+                      >
+                        SAVE
+                      </Button>
+                    </ThemeProvider>
+                  </>
+                )}
+              </div>
             );
           })}
         </div>
-        <ThemeProvider theme={theme}>
-          <Button
-            onClick={() => {
-              setList([...list].filter((l) => li.id !== l.id));
-              questionNumber--;
-            }}
-            size="small"
-            variant="outlined"
-            startIcon={<DeleteOutlinedIcon />}
-            color="primary"
-          >
-            Delete
-          </Button>
-        </ThemeProvider>
-      </div>
-    </>
+      )}
+      <ThemeProvider theme={theme}>
+        <Button
+          onClick={() => {
+            dispatch(removeItem(li.id));
+            questionNumber--;
+            questionNumber = 0;
+          }}
+          size="small"
+          variant="outlined"
+          startIcon={<DeleteOutlinedIcon />}
+          color="primary"
+        >
+          {showItem && "Delete"}
+        </Button>
+      </ThemeProvider>
+    </div>
   );
 };
 export default Question;
