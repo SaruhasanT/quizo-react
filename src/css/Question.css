@@ -70,26 +70,25 @@
 .icon-wrapper {
   position: relative;
   margin-bottom: 10px;
-  height: 30px;
-  width: 30px;
+  height: 20px;
+  width: 20px;
   background-color: #ccc;
 }
 
 .icon-wrapper span {
-  width: 3px;
+  width: 2px;
   height: 20px;
   background-color: black;
   position: absolute;
   transition: all 400ms ease-in;
-  top: 50%;
   left: 50%;
-  /* transform-origin: center; */
+  transform: translateX(-50%);
 }
 .icon-wrapper span.b {
-  transform: rotate(90deg);
+  transform: translateX(-50%) rotate(90deg);
 }
 .icon-wrapper.active span {
-  transform: rotate(270deg);
+  transform: translateX(-50%) rotate(270deg);
 }
 .no_checkBox {
   margin-left: 50px;
