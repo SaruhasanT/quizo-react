@@ -37,6 +37,13 @@ const questionSlice = createSlice({
         }
       }
     },
+    updateCorrectAnswer: (state, action) => {
+      state.items.forEach((item, index) => {
+        if (index === action.payload.questionNumber - 1) {
+          item.correctAnswer = action.payload.correctAnswer;
+        }
+      });
+    },
     clearItems: (state) => {
       state.items.length = 0;
     },
@@ -49,6 +56,7 @@ export const {
   updateQuestion,
   updateAnswers,
   clearItems,
+  updateCorrectAnswer,
 } = questionSlice.actions;
 
 export default questionSlice.reducer;

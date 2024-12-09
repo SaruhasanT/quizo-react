@@ -17,6 +17,7 @@ const theme = createTheme({
   },
 });
 const McqBuild = () => {
+  const lastItemRef = useRef();
   const dispatch = useDispatch();
   const questionList = useSelector((store) => {
     return store.questions.items;
@@ -68,7 +69,7 @@ const McqBuild = () => {
     },
   };
   return (
-    <div className="mcq__build">
+    <div className="mcq__build" onClick={(e) => console.log(e.target)}>
       <div className="mcq__building">
         <form>
           <h2>Create your question here.</h2>
@@ -83,6 +84,7 @@ const McqBuild = () => {
               id="standard-basic"
               label="Question"
               variant="outlined"
+              required
               ref={question}
               onChange={(e) => {
                 setQuestionValue(
@@ -97,6 +99,7 @@ const McqBuild = () => {
               <span>1.</span>
               <TextField
                 onChange={(e) => setValue(e, setAns1)}
+                required
                 id="standard-basic"
                 label="Answer 01"
                 variant="standard"
@@ -115,6 +118,7 @@ const McqBuild = () => {
               <span>2.</span>
               <TextField
                 onChange={(e) => setValue(e, setAns2)}
+                required
                 id="standard-basic"
                 label="Answer 02"
                 variant="standard"
@@ -133,6 +137,7 @@ const McqBuild = () => {
               <span>3.</span>
               <TextField
                 onChange={(e) => setValue(e, setAns3)}
+                required
                 id="standard-basic"
                 label="Answer 03"
                 variant="standard"
@@ -151,6 +156,7 @@ const McqBuild = () => {
               <span>4.</span>
               <TextField
                 onChange={(e) => setValue(e, setAns4)}
+                required
                 id="standard-basic"
                 label="Answer 04"
                 variant="standard"
@@ -205,7 +211,11 @@ const McqBuild = () => {
                     correctAnswer: checkedIndex + 1,
                   })
                 );
-
+                setTimeout(() => {
+                  if (lastItemRef.current) {
+                    lastItemRef.current.scrollIntoView({ behavior: "smooth" });
+                  }
+                }, 0);
                 question.current.children[1].children[0].value = "";
                 setQuestionValue("");
               }}
@@ -239,7 +249,14 @@ const McqBuild = () => {
         {questionList.map((li, index) => {
           ++questionNumber;
           return (
-            <Question key={li.id} li={li} questionNumber={questionNumber} />
+            <Question
+              key={li.id}
+              li={li}
+              questionNumber={questionNumber}
+              lastItemRef={
+                index === questionList.length - 1 ? lastItemRef : null
+              }
+            />
           );
         })}
       </div>

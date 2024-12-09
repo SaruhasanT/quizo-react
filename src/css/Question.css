@@ -9,7 +9,7 @@
 .ans {
   display: flex;
   align-items: center;
-  height: 25px;
+  height: 40px;
 }
 .ans.correct {
   color: green;
@@ -68,7 +68,42 @@
   height: 20px;
 }
 .icon-wrapper {
-  width: 20px;
-  height: 20px;
+  position: relative;
+  margin-bottom: 10px;
+  height: 30px;
+  width: 30px;
   background-color: #ccc;
+}
+
+.icon-wrapper span {
+  width: 3px;
+  height: 20px;
+  background-color: black;
+  position: absolute;
+  transition: all 400ms ease-in;
+  top: 50%;
+  left: 50%;
+  /* transform-origin: center; */
+}
+.icon-wrapper span.b {
+  transform: rotate(90deg);
+}
+.icon-wrapper.active span {
+  transform: rotate(270deg);
+}
+.no_checkBox {
+  margin-left: 50px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.input__and__btn {
+  align-items: center;
+  display: flex;
+  width: 200px;
+}
+.check__box__container {
+  position: relative;
+  height: 100%;
+  width: max-content;
 }

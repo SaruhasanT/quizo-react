@@ -14,6 +14,7 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 const Login = ({ isLogin, setIsLogin, setIsLoggedIn }) => {
+  const userName = useRef(null);
   const newUser = useSelector((store) => store.users.user);
   const dispatch = useDispatch();
   const [emailError, setEmailError] = useState(null);
@@ -22,13 +23,59 @@ const Login = ({ isLogin, setIsLogin, setIsLoggedIn }) => {
   const email = useRef(null);
   const password = useRef(null);
   const repeatPassword = useRef(null);
-  const isCreadentialsValid = () => {
-    return (
-      emailError == null && passwordError == null && repeatPasswordError == null
-    );
+  const handleSwitchClick = () => {
+    if (isLogin) {
+      setIsLogin(false);
+      emptyErr();
+      const loginWindow = document.querySelector(".login-window");
+      console.log(loginWindow);
+      loginWindow.classList.add("open");
+    } else {
+      checkEmail();
+      checkPassword();
+      setIsLogin(true);
+      if (password.current.value !== repeatPassword.current.value) {
+        setRepeatPasswordError("Password doesn't match!");
+      } else {
+        setRepeatPasswordError(null);
+      }
+      emptyErr(null);
+    }
   };
-  const isLogingCreadentialValid = () => {
-    return emailError == null && passwordError == null;
+  const handleButtonClick = () => {
+    checkEmail();
+    checkPassword();
+    if (isCreadentialsValid) {
+      if (isLogin) {
+        logUser();
+      } else {
+        setIsLogin(null);
+        setIsLoggedIn(true);
+        createNewUser();
+      }
+    }
+    // if (isLogin) {
+    //   if (isCreadentialsValid()) {
+    //     logUser();
+    //   }
+    // } else {
+    //   if (isCreadentialsValid()) {
+    //     setIsLogin(null);
+    //     setIsLoggedIn(true);
+    //     createNewUser();
+    //   }
+    // }
+  };
+  const isCreadentialsValid = () => {
+    if (isLogin) {
+      return emailError == null && passwordError == null;
+    } else {
+      return (
+        emailError == null &&
+        passwordError == null &&
+        repeatPasswordError == null
+      );
+    }
   };
   const checkEmail = () => {
     const err = validateEmail(email.current.value);
@@ -51,8 +98,6 @@ const Login = ({ isLogin, setIsLogin, setIsLoggedIn }) => {
     )
       .then((userCredential) => {
         const user = userCredential.user;
-        dispatch(log(user));
-        console.log(newUser);
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -67,15 +112,14 @@ const Login = ({ isLogin, setIsLogin, setIsLoggedIn }) => {
     )
       .then((userCredential) => {
         const user = userCredential.user;
-        dispatch(log(user));
         setIsLogin(null);
         setIsLoggedIn(true);
-        console.log(newUser);
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        setPasswordError(errorMessage);
+        console.log(errorMessage);
+        setPasswordError(errorCode + " - " + errorMessage);
       });
   }
   return (
@@ -86,6 +130,7 @@ const Login = ({ isLogin, setIsLogin, setIsLoggedIn }) => {
       className="login-window"
     >
       <h1 className="title">{isLogin ? "LOGIN" : "SIGNUP"}</h1>
+      {!isLogin && <input type="text" ref={userName} placeholder="Username" />}
       <input ref={email} type="text" placeholder="Email" />
       <p className="error-msg">{emailError}</p>
       <input ref={password} type="password" placeholder="Password" />
@@ -107,82 +152,26 @@ const Login = ({ isLogin, setIsLogin, setIsLoggedIn }) => {
           <p className="error-msg">{repeatPasswordError}</p>
         </>
       ) : null}
-      {isLogin ? (
-        <>
-          <PrimaryButton
-            text="Login"
-            backgroundColor="black"
-            width="150px"
-            onClick={() => {
-              checkEmail();
-              checkPassword();
-
-              if (
-                isLogingCreadentialValid() &&
-                email.current.value !== "" &&
-                password.current.value !== ""
-              ) {
-                logUser();
-              }
-              localStorage.setItem("isLoggedIn", true);
-            }}
-          />
-          <span
-            className="switch"
-            onClick={() => {
-              setIsLogin(false);
-              emptyErr();
-              const loginWindow = document.querySelector(".login-window");
-              console.log(loginWindow);
-              loginWindow.classList.add("open");
-            }}
-          >
-            New here, Click to sign up!
-          </span>
-        </>
-      ) : null}
-
-      {!isLogin ? (
-        <>
-          <PrimaryButton
-            text="SignUp"
-            backgroundColor="#844D00"
-            bgColor="#54370D"
-            width="150px"
-            onClick={() => {
-              checkEmail();
-              checkPassword();
-
-              if (
-                isCreadentialsValid() &&
-                email.current.value !== "" &&
-                password.current.value !== ""
-              ) {
-                setIsLogin(null);
-                setIsLoggedIn(true);
-                createNewUser();
-              }
-              console.log(emailError, passwordError, repeatPasswordError);
-            }}
-          />
-          <span
-            className="switch"
-            onClick={() => {
-              checkEmail();
-              checkPassword();
-              setIsLogin(true);
-              if (password.current.value !== repeatPassword.current.value) {
-                setRepeatPasswordError("Password doesn't match!");
-              } else {
-                setRepeatPasswordError(null);
-              }
-              emptyErr(null);
-            }}
-          >
-            Already a member, Click to login!
-          </span>
-        </>
-      ) : null}
+      <>
+        <PrimaryButton
+          text={isLogin ? "Login" : "SignUp"}
+          backgroundColor="black"
+          width="150px"
+          onClick={() => {
+            handleButtonClick();
+          }}
+        />
+        <span
+          className="switch"
+          onClick={() => {
+            handleSwitchClick();
+          }}
+        >
+          {isLogin
+            ? "New here, Click to sign up!"
+            : "Already a member, Click to login!"}
+        </span>
+      </>
       <div className="auth-icons">
         <div>
           <img

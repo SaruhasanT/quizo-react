@@ -1,11 +1,53 @@
 header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
   padding-inline: 100px;
   height: 70px;
 }
 .navigate-btns {
+  position: relative;
   display: flex;
+  justify-content: flex-end;
   gap: 20px;
+}
+.user__popup {
+  position: absolute;
+  padding: 20px 20px;
+  box-shadow: 1px 1px 4px 1px #ccc;
+  border-radius: 5px;
+  background-color: white;
+}
+.user__popup ul {
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+  color: #2b2b2b;
+}
+.user__popup ul li {
+  margin: 2px;
+  border-radius: 2px;
+  padding: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.popup_icon {
+  margin-top: 3px;
+  margin-right: 10px;
+  width: 16px;
+}
+.edit_popup {
+  width: 300px;
+  background-color: red;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  z-index: 100;
+  border-radius: 10px;
 }

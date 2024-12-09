@@ -7,9 +7,7 @@ import Layout from "./components/Layout";
 import McqBuild from "./components/McqBuild";
 function App() {
   const [isLogin, setIsLogin] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.getItem("isLoggedIn")
-  );
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [totalQuestions, setTotalQuestions] = useState(null);
   const [numberOfAnswers, setNumberOfAnswers] = useState(4);
   const router = createBrowserRouter([

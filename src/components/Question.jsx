@@ -1,19 +1,38 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Button from "@mui/material/Button";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import DoneIcon from "@mui/icons-material/Done";
+import { AnimatePresence } from "framer-motion";
 import "../css/Question.css";
 import { TextField, ThemeProvider, createTheme } from "@mui/material";
 import { useDispatch } from "react-redux";
+import { motion } from "framer-motion";
+import Checkbox from "@mui/material/Checkbox";
 import {
   removeItem,
   updateAnswers,
   updateQuestion,
-  clearItems,
+  updateCorrectAnswer,
 } from "../store/questionSlice";
 import { useSelector } from "react-redux";
+const AnimatedInput = motion(TextField);
 
-const Question = ({ li, questionNumber }) => {
+const Question = ({ li, questionNumber, lastItemRef }) => {
+  const [correctAnsCheckIndex, setCorrectAnsCheckIndex] = useState(
+    li.correctAnswer
+  );
+  useEffect(() => {
+    dispatch(
+      updateCorrectAnswer({
+        questionNumber: questionNumber,
+        correctAnswer: correctAnsCheckIndex,
+      })
+    );
+  }, [correctAnsCheckIndex]);
+
+  const questionSave = useRef();
+  const answerSave = useRef();
+
   const questionList = useSelector((store) => {
     return store.questions.items;
   });
@@ -31,12 +50,14 @@ const Question = ({ li, questionNumber }) => {
       },
     },
   });
+  const checkBoxRef = useRef();
 
   return (
-    <div className="ques__wrapper">
+    <div className="ques__wrapper" ref={lastItemRef}>
       <div className="question-header">
         <div
-          onDoubleClick={() => {
+          onClick={(e) => {
+            if (e.target === questionSave.current) return;
             setIsInputOpen(true);
             setQEditText(li.question);
           }}
@@ -46,14 +67,23 @@ const Question = ({ li, questionNumber }) => {
             li.question
           ) : (
             <>
-              <input
+              {/* <input
                 className="edit__field"
                 value={qEditText}
                 onChange={(e) => {
                   setQEditText(e.target.value);
                 }}
+              /> */}
+              <TextField
+                id="standard-basic"
+                className="edit__field"
+                value={qEditText}
+                onChange={(e) => {
+                  setQEditText(e.target.value);
+                }}
+                label=""
+                variant="standard"
               />
-
               <ThemeProvider theme={theme}>
                 <Button
                   onClick={() => {
@@ -69,6 +99,7 @@ const Question = ({ li, questionNumber }) => {
                   size="small"
                   variant="outlined"
                   color="primary"
+                  ref={questionSave}
                 >
                   SAVE
                 </Button>
@@ -77,7 +108,7 @@ const Question = ({ li, questionNumber }) => {
           )}
         </div>
         <div
-          className="icon-wrapper"
+          className={showItem ? "active icon-wrapper" : "icon-wrapper"}
           onClick={() => {
             setShowItem(!showItem);
           }}
@@ -85,79 +116,134 @@ const Question = ({ li, questionNumber }) => {
             cursor: "pointer",
           }}
         >
-          {!showItem ? (
-            <img
-              src="https://www.svgrepo.com/show/532997/plus-large.svg"
-              className="plus-icon acc-icon"
-            />
-          ) : (
-            <img
-              src="https://www.svgrepo.com/show/532178/horizontal-rule.svg"
-              className="minus-icon acc-icon"
-            />
-          )}
+          <span className="a"></span>
+          <span className="b"></span>
         </div>
       </div>
-      {showItem && (
-        <div className="answers">
-          {li.answers.map((ans, index) => {
-            return (
-              <div
-                key={index + 1}
-                onDoubleClick={() => {
-                  setEditIndex(index + 1);
-                  setEditText(ans.answer);
-                }}
-                className={
-                  li.correctAnswer === index + 1 ? "ans correct" : "ans"
-                }
-              >
-                {index + 1}.{"  "}
-                {editIndex !== index + 1 ? (
-                  li.correctAnswer !== index + 1 ? (
-                    ans.answer
-                  ) : (
-                    <>
-                      {ans.answer} <DoneIcon />
-                    </>
-                  )
-                ) : (
-                  <>
-                    <input
-                      className="edit__field"
-                      value={editText}
-                      onChange={(e) => {
-                        setEditText(e.target.value);
-                      }}
-                    />
 
-                    <ThemeProvider theme={theme}>
-                      <Button
-                        onClick={() => {
-                          setEditIndex(null);
-                          dispatch(
-                            updateAnswers({
-                              id: questionList[questionNumber - 1].id,
-                              answerNumber: editIndex,
-                              newAnswer: editText,
-                            })
-                          );
-                          setEditText("");
-                        }}
-                        size="small"
-                        variant="outlined"
-                        color="primary"
-                      >
-                        SAVE
-                      </Button>
-                    </ThemeProvider>
-                  </>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <AnimatePresence>
+        {showItem && (
+          <motion.div
+            initial={{
+              height: 0,
+              overflow: "hidden",
+            }}
+            animate={{
+              height: "auto",
+            }}
+            exit={{
+              height: 0,
+            }}
+            transition={{
+              duration: 0.4,
+            }}
+            className="answers"
+          >
+            {li.answers.map((ans, index) => {
+              return (
+                <div
+                  className={
+                    li.correctAnswer === index + 1 ? "ans correct" : "ans"
+                  }
+                >
+                  <Checkbox
+                    checked={correctAnsCheckIndex === index + 1 ? true : false}
+                    onChange={() => {
+                      setCorrectAnsCheckIndex(index + 1);
+
+                      console.log(li.correctAnswer, correctAnsCheckIndex);
+                    }}
+                    ref={checkBoxRef}
+                    style={{
+                      padding: 0,
+                      position: "relative",
+                      zIndex: 100,
+                      position: "absolute",
+                      top: "50%",
+                      width: 50,
+                      margin: 0,
+                    }}
+                  />
+                  <div
+                    key={index + 1}
+                    onClick={(e) => {
+                      if (e.target === answerSave.current) {
+                        return;
+                      }
+                      setEditIndex(index + 1);
+                      setEditText(ans.answer);
+                    }}
+                    className="no_checkBox"
+                  >
+                    <div>
+                      {index + 1}.{"  "}
+                    </div>
+                    {editIndex !== index + 1 ? (
+                      li.correctAnswer !== index + 1 ? (
+                        <div>{ans.answer}</div>
+                      ) : (
+                        <div className="flex w-40 justify-between">
+                          <div className="">{ans.answer}</div>{" "}
+                          <DoneIcon size="small" />
+                        </div>
+                      )
+                    ) : (
+                      <div className="input__and__btn">
+                        <AnimatePresence>
+                          <AnimatedInput
+                            initial={{
+                              width: 0,
+                              overflow: "hidden",
+                              borderBottom: "1px solid",
+                              borderRadius: 0,
+                            }}
+                            animate={{
+                              width: "auto",
+                            }}
+                            exit={{
+                              width: 0,
+                            }}
+                            id="standard-basic"
+                            className="edit__field"
+                            value={editText}
+                            onChange={(e) => {
+                              setEditText(e.target.value);
+                            }}
+                            label=""
+                            variant="standard"
+                          />
+                        </AnimatePresence>
+                        <ThemeProvider theme={theme}>
+                          <Button
+                            onClick={() => {
+                              setEditIndex(null);
+                              dispatch(
+                                updateAnswers({
+                                  id: questionList[questionNumber - 1].id,
+                                  answerNumber: editIndex,
+                                  newAnswer: editText,
+                                })
+                              );
+                              setEditText("");
+                            }}
+                            size="small"
+                            variant="outlined"
+                            color="primary"
+                            ref={answerSave}
+                          >
+                            SAVE
+                          </Button>
+                        </ThemeProvider>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <ThemeProvider theme={theme}>
         <Button
           onClick={() => {
@@ -169,8 +255,12 @@ const Question = ({ li, questionNumber }) => {
           variant="outlined"
           startIcon={<DeleteOutlinedIcon />}
           color="primary"
+          style={{
+            marginTop: 10,
+            marginLeft: 15,
+          }}
         >
-          {showItem && "Delete"}
+          Delete
         </Button>
       </ThemeProvider>
     </div>
