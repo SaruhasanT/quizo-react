@@ -15,7 +15,7 @@ import {
   updateCorrectAnswer,
 } from "../store/questionSlice";
 import { useSelector } from "react-redux";
-const AnimatedInput = motion(TextField);
+const AnimatedInput = motion.create(TextField);
 
 const Question = ({ li, questionNumber, lastItemRef }) => {
   const [correctAnsCheckIndex, setCorrectAnsCheckIndex] = useState(
@@ -41,7 +41,6 @@ const Question = ({ li, questionNumber, lastItemRef }) => {
   const [editIndex, setEditIndex] = useState(null);
   const [editText, setEditText] = useState("");
   const [qEditText, setQEditText] = useState("");
-  const [editRightAnswer, setEditRightAnswer] = useState(null);
   const [showItem, setShowItem] = useState(true);
   const theme = createTheme({
     palette: {
@@ -51,6 +50,17 @@ const Question = ({ li, questionNumber, lastItemRef }) => {
     },
   });
   const checkBoxRef = useRef();
+  useEffect(() => {
+    setEditIndex(null);
+    dispatch(
+      updateAnswers({
+        id: questionList[questionNumber - 1].id,
+        answerNumber: editIndex,
+        newAnswer: editText,
+      })
+    );
+    setEditText("");
+  }, [setEditIndex]);
 
   return (
     <div className="ques__wrapper" ref={lastItemRef}>
@@ -156,7 +166,6 @@ const Question = ({ li, questionNumber, lastItemRef }) => {
                     ref={checkBoxRef}
                     style={{
                       padding: 0,
-                      position: "relative",
                       zIndex: 100,
                       position: "absolute",
                       top: "50%",

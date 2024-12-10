@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Button, TextField } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
@@ -7,8 +7,17 @@ import "../css/McqBuild.css";
 import { ThemeProvider, createTheme } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { clearItems } from "../store/questionSlice";
-import { addItem } from "../store/questionSlice";
-
+import { addItem, receiveFirebaseData } from "../store/questionSlice";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  Timestamp,
+  FieldValue,
+  query,
+  orderBy,
+} from "firebase/firestore";
+import { auth, db } from "../utils/firebase";
 const theme = createTheme({
   palette: {
     primary: {
@@ -16,12 +25,41 @@ const theme = createTheme({
     },
   },
 });
+
 const McqBuild = () => {
-  const lastItemRef = useRef();
-  const dispatch = useDispatch();
   const questionList = useSelector((store) => {
     return store.questions.items;
   });
+  useEffect(() => {
+    readData();
+  }, [questionList]);
+  function updateQuestions(param) {
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const timestamp = Date.now();
+        try {
+          const docRef = await addDoc(collection(db, "Questions"), {
+            ...param,
+            timestamp: timestamp,
+          });
+        } catch (e) {
+          console.error("Error adding document: ", e);
+        }
+      }
+    });
+  }
+  async function readData() {
+    const questions = collection(db, "Questions");
+    const sortedQuetions = query(questions, orderBy("timestamp", "asc"));
+    const querySnapshot = await getDocs(sortedQuetions);
+    let items = [];
+    querySnapshot.forEach((doc, index) => {
+      items.push(doc.data());
+    });
+    dispatch(receiveFirebaseData(items));
+  }
+  const lastItemRef = useRef();
+  const dispatch = useDispatch();
   const [questionValue, setQuestionValue] = useState(null);
   const [ans1, setAns1] = useState(null);
   let question = useRef(null);
@@ -31,6 +69,7 @@ const McqBuild = () => {
   const [ans5, setAns5] = useState(null);
   const [isChecked, setIsChecked] = useState(0);
   const [checkedIndex, setCheckedIndex] = useState(0);
+
   let questionNumber = 0;
   const setValue = (e, setItem) => {
     let value = e.target.value;
@@ -69,7 +108,7 @@ const McqBuild = () => {
     },
   };
   return (
-    <div className="mcq__build" onClick={(e) => console.log(e.target)}>
+    <div className="mcq__build">
       <div className="mcq__building">
         <form>
           <h2>Create your question here.</h2>
@@ -197,20 +236,19 @@ const McqBuild = () => {
               size="small"
               onClick={() => {
                 const newId = uuidv4();
-                dispatch(
-                  addItem({
-                    id: newId,
-                    question: questionValue,
-                    answers: [
-                      { answerNumber: 1, answer: ans1 },
-                      { answerNumber: 2, answer: ans2 },
-                      { answerNumber: 3, answer: ans3 },
-                      { answerNumber: 4, answer: ans4 },
-                      { answerNumber: 5, answer: ans5 },
-                    ].filter((item) => item.answer !== null),
-                    correctAnswer: checkedIndex + 1,
-                  })
-                );
+                let data = {
+                  id: newId,
+                  question: questionValue,
+                  answers: [
+                    { answerNumber: 1, answer: ans1 },
+                    { answerNumber: 2, answer: ans2 },
+                    { answerNumber: 3, answer: ans3 },
+                    { answerNumber: 4, answer: ans4 },
+                    { answerNumber: 5, answer: ans5 },
+                  ].filter((item) => item.answer !== null),
+                  correctAnswer: checkedIndex + 1,
+                };
+                // dispatch(addItem(data));
                 setTimeout(() => {
                   if (lastItemRef.current) {
                     lastItemRef.current.scrollIntoView({ behavior: "smooth" });
@@ -218,6 +256,7 @@ const McqBuild = () => {
                 }, 0);
                 question.current.children[1].children[0].value = "";
                 setQuestionValue("");
+                updateQuestions(data);
               }}
               variant="outlined"
             >
@@ -228,7 +267,7 @@ const McqBuild = () => {
         <ThemeProvider theme={theme}>
           <Button
             onClick={() => {
-              console.log(questionList);
+              readData();
             }}
             variant="outlined"
             size="small"

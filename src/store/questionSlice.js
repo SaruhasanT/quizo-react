@@ -25,7 +25,7 @@ const questionSlice = createSlice({
     },
     updateAnswers: (state, action) => {
       for (let i = 0; i < state.items.length; i++) {
-        if (state.items[i].id == action.payload.id) {
+        if (state.items[i].id === action.payload.id) {
           for (let j = 0; j < state.items[i].answers.length; j++) {
             if (
               state.items[i].answers[j].answerNumber ===
@@ -47,6 +47,9 @@ const questionSlice = createSlice({
     clearItems: (state) => {
       state.items.length = 0;
     },
+    receiveFirebaseData: (state, action) => {
+      state.items = action.payload;
+    },
   },
 });
 
@@ -57,6 +60,7 @@ export const {
   updateAnswers,
   clearItems,
   updateCorrectAnswer,
+  receiveFirebaseData,
 } = questionSlice.actions;
 
 export default questionSlice.reducer;
