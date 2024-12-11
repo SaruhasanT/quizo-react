@@ -37,7 +37,12 @@ const McqCreate = ({
           />
         </div>
         <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
-          <InputLabel id="demo-select-small-label">
+          <InputLabel
+            id="demo-select-small-label"
+            onClick={() => {
+              console.log("hi");
+            }}
+          >
             Number of Answers
           </InputLabel>
           <Select
@@ -63,6 +68,13 @@ const McqCreate = ({
         />
       </form>
       <div className="list_of_questions"></div>
+      <button
+        onClick={() => {
+          navigate("/");
+        }}
+      >
+        Move
+      </button>
     </div>
   );
 };

@@ -264,18 +264,14 @@ const McqBuild = () => {
             </Button>
           </ThemeProvider>
         </form>
-        <ThemeProvider theme={theme}>
-          <Button
-            onClick={() => {
-              readData();
-            }}
-            variant="outlined"
-            size="small"
-            color="primary"
-          >
-            Submit
-          </Button>
-        </ThemeProvider>
+        <button
+          className="px-4 py-2 rounded-md m-5 border-slate-700"
+          variant="outlined"
+          size="small"
+          color="primary"
+        >
+          Submit
+        </button>
         <button
           onClick={() => {
             dispatch(clearItems());

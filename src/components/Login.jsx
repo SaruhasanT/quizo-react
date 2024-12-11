@@ -15,7 +15,7 @@ import {
 } from "firebase/auth";
 const Login = ({ isLogin, setIsLogin, setIsLoggedIn }) => {
   const userName = useRef(null);
-  const newUser = useSelector((store) => store.users.user);
+  // const newUser = useSelector((store) => store.users.user);
   const dispatch = useDispatch();
   const [emailError, setEmailError] = useState(null);
   const [passwordError, setPasswordError] = useState(null);

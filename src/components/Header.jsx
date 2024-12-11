@@ -3,14 +3,31 @@ import "../css/Header.css";
 import { Button, TextField } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material";
 import { motion } from "framer-motion";
+import { useSelector, useDispatch } from "react-redux";
+import { removeUser } from "../store/userSlice";
+import { signOut } from "firebase/auth";
+import { auth } from "../utils/firebase";
 const Header = ({ setIsLogin, setIsLoggedIn, isLoggedIn }) => {
+  const dispatch = useDispatch();
+  const user = useSelector((store) => {
+    return store.users;
+  });
+  function signUserOut() {
+    signOut(auth)
+      .then(() => {
+        dispatch(removeUser(null));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
   const [isOpen, setIsOpen] = useState(false);
   return (
     <>
       <header>
         <h1>QUIZO</h1>
         <div className="navigate-btns">
-          {isLoggedIn ? (
+          {user ? (
             <div>
               <Button
                 variant="text"
@@ -53,7 +70,7 @@ const Header = ({ setIsLogin, setIsLoggedIn, isLoggedIn }) => {
                     </li>
                     <li
                       onClick={() => {
-                        setIsLoggedIn(false);
+                        signUserOut();
                         setIsOpen(false);
                       }}
                     >
@@ -71,7 +88,7 @@ const Header = ({ setIsLogin, setIsLoggedIn, isLoggedIn }) => {
               )}
             </div>
           ) : null}
-          {!isLoggedIn ? (
+          {!user ? (
             <>
               <Button
                 variant="text"

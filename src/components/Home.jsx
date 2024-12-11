@@ -4,7 +4,9 @@ import "../App.css";
 import Login from "./Login";
 import DarkBg from "./DarkBg";
 import PrimaryButton from "./PrimaryButton";
+import { useSelector } from "react-redux";
 const Home = ({ setIsLoggedIn, setIsLogin, isLoggedIn, isLogin }) => {
+  const user = useSelector((store) => store.users);
   const navigate = useNavigate();
   return (
     <div className="container home">
@@ -31,7 +33,7 @@ const Home = ({ setIsLoggedIn, setIsLogin, isLoggedIn, isLogin }) => {
           <div className="buttons">
             <PrimaryButton
               onClick={() => {
-                if (isLoggedIn) {
+                if (user) {
                   navigate("/create");
                 } else {
                   setIsLogin(true);
